@@ -61,6 +61,7 @@ export default function Login() {
       if (data.message === "success") {
         localStorage.setItem("token", data.token);
         toast.success("user created Successfully");
+        localStorage.setItem("role", "CEO");
         setTimeout(() => {
           navigate("/home");
         }, 2000);

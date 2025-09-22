@@ -1,102 +1,198 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+
 export default function Navbar() {
-  let [minucase, setminucase] = useState(false);
-  const duration = 500;
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const duration = 500;
 
-  // 🔑 نشيك على التوكن
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
-  // دالة تسجيل الخروج
   const handleLogout = () => {
-    localStorage.removeItem("token"); // نمسح التوكن
-    navigate("/login"); // نوديه صفحة تسجيل الدخول
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    navigate("/login");
+    setMenuOpen(false);
   };
 
+  // أقسام حسب الدور
+  const sectionsByRole = {
+    CEO: [
+      { icon: "fa-house", label: "Home", path: "/home" },
+      { icon: "fa-clock-rotate-left", label: "History", path: "/history" },
+      { icon: "fa-database", label: "Database", path: "/database" },
+      { icon: "fa-video", label: "Videos", path: "/videos" },
+      {
+        icon: "fa-solid fa-filter-circle-xmark",
+        label: "Filter",
+        path: "/filter",
+      },
+      { icon: "fa-user", label: "Profile", path: "/profile" },
+    ],
+    employee: [
+      { icon: "fa-house", label: "Home", path: "/home" },
+      { icon: "fa-database", label: "Database", path: "/database" },
+      { icon: "fa-video", label: "Videos", path: "/videos" },
+      {
+        icon: "fa-solid fa-filter-circle-xmark",
+        label: "Filter",
+        path: "/filter",
+      },
+      { icon: "fa-user", label: "Profile", path: "/profile" },
+    ],
+    officer: [
+      { icon: "fa-house", label: "Home", path: "/home" },
+      { icon: "fa-user", label: "Profile", path: "/profile" },
+    ],
+  };
+
+  const sections =
+    role === "CEO"
+      ? sectionsByRole.CEO
+      : role === "employee"
+      ? sectionsByRole.employee
+      : role === "officer"
+      ? sectionsByRole.officer
+      : [];
+
   return (
-    <>
-      <nav
-        style={{ transition: `all ${duration}ms` }}
-        className={`bg-black/30 shadow-sm fixed top-0 right-0 left-0 shadow-primary-500 
-        overflow-hidden md:overflow-visible  flex md:items-center py-0 z-50 text-primary-500
-        ${minucase ? "h-[160px] md:h-[65px]" : "h-[65px]"}`}
-      >
-        <div className="container mx-auto px-2 py-2">
-          <div className="max-w-screen-xl flex flex-col md:flex-row gap-y-5 mx-auto p-1">
-            {/* logo */}
-            <div className="flex justify-between items-center gap-x-1 mr-2">
-              <a
-                href="#"
-                className="flex items-center space-x-3 rtl:space-x-reverse"
-              >
-                <img
-                  src="/images/OzirixPng2.png"
-                  className="w-15 h-14 py-1"
-                  alt="Flowbite Logo"
-                />
-              </a>
-              <div
-                onClick={() => setminucase(!minucase)}
-                className="text-xl md:hidden"
-              >
-                {minucase ? (
-                  <i className="fa-solid fa-x"></i>
-                ) : (
-                  <i className="fa-solid fa-bars"></i>
-                )}
-              </div>
-            </div>
+    <nav
+      style={{ transition: `all ${duration}ms` }}
+      className="bg-black/30 fixed top-0 right-0 left-0 z-50 shadow-sm shadow-primary-500"
+    >
+      <div className="container mx-auto px-3 py-2">
+        <div className="max-w-screen-xl mx-auto flex items-center justify-between">
+          {/* ===== Logo ===== */}
+          <a href="/" className="flex items-center">
+            <img
+              src="/images/OzirixPng2.png"
+              className="w-16 h-16"
+              alt="Ozirix Logo"
+            />
+          </a>
 
-            {/* links */}
-            <div className="flex justify-between md:gap-4 items-center  space-y-6 md:space-y-0 w-full flex-col md:flex-row">
-              <div className="flex items-center text-primary-500 gap-3 justify-between flex-col w-full md:flex-row md:w-fit ms-auto">
-                <div className="w-full md:w-fit flex">
-                  <ul className="flex w-full md:w-fit gap-2 flex-col md:flex-row md:items-center items-start ">
-                    {/* لو مفيش توكن → Login + Register */}
-                    <li>
-                      <NavLink
-                        to="login"
-                        className={({ isActive }) =>
-                          `hover:text-primary-700 mx-3 duration-300 cursor-pointer ${
-                            isActive ? "text-primary-700" : ""
-                          }`
-                        }
-                      >
-                        Login
-                      </NavLink>
-                    </li>
-                    <li>
-                      <NavLink
-                        to="signup"
-                        className={({ isActive }) =>
-                          `hover:text-primary-700 flex justify-center items-center rounded-lg 
-                              border border-blue-500 px-4 py-1 md:py-[13px] 
-                              hover:border-gray-50 duration-300 cursor-pointer text-blue-500 
-                              ${isActive ? "text-primary-700" : ""}`
-                        }
-                      >
-                        Join Free
-                      </NavLink>
-                    </li>
+          {/* ===== Burger icon (mobile) ===== */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="text-2xl text-white md:hidden ml-auto"
+          >
+            {menuOpen ? (
+              <i className="fa-solid fa-xmark" />
+            ) : (
+              <i className="fa-solid fa-bars" />
+            )}
+          </button>
 
-                    {/* لو فيه توكن → Logout */}
-                    <li>
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-primary-500 px-4 py-2 rounded-lg shadow-md transition duration-300"
-                      >
-                        <i className="fa-solid fa-right-from-bracket"></i>
-                        Logout
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+          {/* ===== Center Links (md+) ===== */}
+          {token && sections.length > 0 && (
+            <ul className="hidden md:flex items-center justify-center gap-8">
+              {sections.map((sec) => (
+                <NavLink
+                  key={sec.path}
+                  to={sec.path}
+                  className={({ isActive }) =>
+                    `group relative flex flex-col items-center text-lg transition-colors
+                     ${
+                       isActive
+                         ? "text-primary-500"
+                         : "text-white hover:text-primary-500"
+                     }`
+                  }
+                >
+                  <i className={`fa-solid ${sec.icon} text-3xl`} />
+                  {/* Tooltip يظهر عند الهفر في الشاشات الكبيرة */}
+                  <span
+                    className="absolute bottom-[-2.5rem] left-1/2 -translate-x-1/2
+                               bg-black/80 text-white text-sm px-3 py-1 rounded-lg shadow-lg
+                               opacity-0 group-hover:opacity-100
+                               hidden md:block transition duration-200 whitespace-nowrap pointer-events-none"
+                  >
+                    {sec.label}
+                  </span>
+                </NavLink>
+              ))}
+            </ul>
+          )}
+
+          {/* ===== Right Side: Logout OR Login/Signup (md+) ===== */}
+          <div className="hidden md:flex items-center gap-4">
+            {token ? (
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-md transition duration-300"
+              >
+                <i className="fa-solid fa-right-from-bracket text-xl" />
+                <span>Logout</span>
+              </button>
+            ) : (
+              <>
+                <NavLink
+                  to="/login"
+                  className="flex items-center gap-2 text-white hover:text-primary-500"
+                >
+                  <i className="fa-solid fa-right-to-bracket text-xl" />
+                  <span>Login</span>
+                </NavLink>
+                <NavLink
+                  to="/signup"
+                  className="flex items-center gap-2 border border-blue-400 text-blue-400 px-4 py-1 rounded-lg hover:text-blue-300 hover:border-blue-300"
+                >
+                  <i className="fa-solid fa-user-plus text-xl" />
+                  <span>Join Free</span>
+                </NavLink>
+              </>
+            )}
           </div>
+
+          {/* ===== Mobile Menu ===== */}
+          {menuOpen && (
+            <div className="absolute top-full left-0 w-full bg-black/90 md:hidden flex flex-col items-center gap-4 py-4">
+              {token ? (
+                <>
+                  {sections.map((sec) => (
+                    <NavLink
+                      key={sec.path}
+                      to={sec.path}
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-3 text-lg text-white hover:text-primary-500"
+                    >
+                      <i className={`fa-solid ${sec.icon} text-2xl`} />
+                      <span>{sec.label}</span>
+                    </NavLink>
+                  ))}
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 text-lg text-red-400 hover:text-red-600 mt-2"
+                  >
+                    <i className="fa-solid fa-right-from-bracket text-2xl" />
+                    <span>Logout</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <NavLink
+                    to="/login"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 text-lg text-white hover:text-primary-500"
+                  >
+                    <i className="fa-solid fa-right-to-bracket text-2xl" />
+                    <span>Login</span>
+                  </NavLink>
+                  <NavLink
+                    to="/signup"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 text-lg text-blue-400 border border-blue-400 px-4 py-1 rounded-lg hover:text-blue-300"
+                  >
+                    <i className="fa-solid fa-user-plus text-2xl" />
+                    <span>Join Free</span>
+                  </NavLink>
+                </>
+              )}
+            </div>
+          )}
         </div>
-      </nav>
-    </>
+      </div>
+    </nav>
   );
 }
