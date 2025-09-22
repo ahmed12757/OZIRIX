@@ -8,7 +8,7 @@ import ForgotPassword from "./page/ForgotPassword/ForgotPassword";
 import VerifyCode from "./page/VerifyCode/VerifyCode";
 import Home from "./page/Home/Home";
 import PublicRoute from "./components/PublicRoute/PublicRoute";
-import ProtectedRoute from "../../gamer/src/components/ProtectedRoute/ProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 function App() {
   const router = createBrowserRouter([
