@@ -129,7 +129,14 @@ export default function Navbar() {
               <>
                 <NavLink
                   to="/login"
-                  className="flex items-center gap-2 text-white hover:text-primary-500"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2
+                     ${
+                       isActive
+                         ? "text-primary-500"
+                         : "text-white hover:text-primary-500"
+                     }`
+                  }
                 >
                   <i className="fa-solid fa-right-to-bracket text-xl" />
                   <span>Login</span>
@@ -139,7 +146,7 @@ export default function Navbar() {
                   className="flex items-center gap-2 border border-blue-400 text-blue-400 px-4 py-1 rounded-lg hover:text-blue-300 hover:border-blue-300"
                 >
                   <i className="fa-solid fa-user-plus text-xl" />
-                  <span>Join Free</span>
+                  <span>Create Account </span>
                 </NavLink>
               </>
             )}
@@ -155,7 +162,14 @@ export default function Navbar() {
                       key={sec.path}
                       to={sec.path}
                       onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-3 text-lg text-white hover:text-primary-500"
+                      className={({ isActive }) =>
+                        `group relative flex flex-col items-center text-lg transition-colors
+                     ${
+                       isActive
+                         ? "text-primary-500"
+                         : "text-white hover:text-primary-500"
+                     }`
+                      }
                     >
                       <i className={`fa-solid ${sec.icon} text-2xl`} />
                       <span>{sec.label}</span>
@@ -174,7 +188,14 @@ export default function Navbar() {
                   <NavLink
                     to="/login"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 text-lg text-white hover:text-primary-500"
+                    className={({ isActive }) =>
+                      `group relative flex flex-col items-center text-lg transition-colors
+                     ${
+                       isActive
+                         ? "text-primary-500"
+                         : "text-white hover:text-primary-500"
+                     }`
+                    }
                   >
                     <i className="fa-solid fa-right-to-bracket text-2xl" />
                     <span>Login</span>
@@ -185,7 +206,7 @@ export default function Navbar() {
                     className="flex items-center gap-2 text-lg text-blue-400 border border-blue-400 px-4 py-1 rounded-lg hover:text-blue-300"
                   >
                     <i className="fa-solid fa-user-plus text-2xl" />
-                    <span>Join Free</span>
+                    <span> Create Account </span>
                   </NavLink>
                 </>
               )}
