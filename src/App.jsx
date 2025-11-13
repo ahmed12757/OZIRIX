@@ -9,6 +9,8 @@ import VerifyCode from "./page/VerifyCode/VerifyCode";
 import Home from "./page/Home/Home";
 import PublicRoute from "./components/PublicRoute/PublicRoute";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import Profile from "./page/Profile/Profile";
+import UpdateProfile from "./page/UpdateProfile/UpdateProfile";
 
 function App() {
   const router = createBrowserRouter([
@@ -16,8 +18,6 @@ function App() {
       path: "/",
       element: <Layout />,
       children: [
-        // ✅ الصفحات المفتوحة للجميع
-
         {
           index: true,
           element: (
@@ -74,8 +74,22 @@ function App() {
             </PublicRoute>
           ),
         },
-
-        // 🔒 الصفحات المحمية (لازم Token)
+        {
+          path: "profile",
+          element: (
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "updateProfile",
+          element: (
+            <ProtectedRoute>
+              <UpdateProfile />
+            </ProtectedRoute>
+          ),
+        },
       ],
     },
   ]);

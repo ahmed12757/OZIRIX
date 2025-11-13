@@ -1,120 +1,136 @@
 import axios from "axios";
 import { useFormik } from "formik";
 import { useState } from "react";
+import { Helmet } from "react-helmet";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
-import { Helmet } from "react-helmet";
+
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
+  const [accountExistsError, setAccountExistsError] = useState(null);
+  const [role, setRole] = useState("ceo");
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
   const navigate = useNavigate();
-  const [accountExisstError, setaccountExisstError] = useState(null);
-  const emailRiges =
+
+  const [loginError, setLoginError] = useState(null);
+
+  const emailRegex =
     /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
+
   const passwordRegex =
     /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/;
 
+  // ✅ Validate form
   function validate(values) {
     const errors = {};
 
-    if (values.email === "") {
-      errors.email = "email is required";
-    } else if (!emailRiges.test(values.email)) {
-      errors.email = "email is not valid";
-    }
+    if (!values.email) errors.email = "Email is required";
+    else if (!emailRegex.test(values.email)) errors.email = "Email is invalid";
 
-    if (values.password === "") {
-      errors.password = " password is required";
-    } else if (!passwordRegex.test(values.password)) {
+    if (!values.password) errors.password = "Password is required";
+    else if (!passwordRegex.test(values.password))
       errors.password =
-        "password | Minimum eight characters, at least one upper case English letter, one lower case English letter, one number and one special character";
-    }
+        "Password must be at least 8 chars with upper, lower, number & special";
 
     return errors;
   }
-  let formik = useFormik({
+
+  // ✅ Formik
+  const formik = useFormik({
     initialValues: {
       email: "",
       password: "",
     },
-    onSubmit: function (values) {
-      senddata(values);
-    },
-
     validate,
+    onSubmit: loginUser,
   });
-  async function senddata(values) {
-    const lodingToastId = toast.loading("waiting...");
+
+  // ✅ Send data to backend
+  async function loginUser(values) {
+    const loadingToastId = toast.loading("Please wait...");
 
     try {
-      const options = {
-        url: "https://ecommerce.routemisr.com/api/v1/auth/signin",
-        method: "POST",
-        data: values,
-      };
-      let { data } = await axios.request(options);
-      console.log(data);
+      // اختيار المسار حسب نوع المستخدم
+      let endpoint = "";
+      if (role === "ceo") endpoint = "/api/v1/ceo/login";
+      else if (role === "employee") endpoint = "/api/v1/employee/login";
+      else if (role === "traffic") endpoint = "/api/v1/traffic-officer/login";
 
-      if (data.message === "success") {
-        localStorage.setItem("token", data.token);
-        toast.success("user created Successfully");
-        localStorage.setItem("role", "CEO");
-        setTimeout(() => {
-          navigate("/home");
-        }, 2000);
-      }
+      const { email, password } = values;
+      const response = await axios.post(`http://127.0.0.1:8000${endpoint}`, {
+        email,
+        password,
+      });
+      console.log(response.data);
+      toast.success(`${role.toUpperCase()} registered successfully`);
+      localStorage.setItem("token", response.data.access);
+      localStorage.setItem("role", role);
+      setTimeout(() => navigate("/home"), 2000);
     } catch (error) {
+      console.log(error);
       toast.error(error.response.data.message);
-      setaccountExisstError(error.response.data.message);
+      setAccountExistsError(error.response.data.message);
     } finally {
-      toast.dismiss(lodingToastId);
+      toast.dismiss(loadingToastId);
     }
   }
+
   return (
-    <div className=" relative h-screen my-auto pt-20 block ">
+    <div className="relative h-screen my-auto pt-20 block">
+      <Helmet>
+        <title>Login</title>
+      </Helmet>
+
       <video
-        className=" absolute top-0 left-0 w-full h-full object-cover -z-10"
+        className="absolute top-0 left-0 w-full h-full object-cover -z-10"
         autoPlay
         loop
         muted
       >
         <source src="/video/Backgroundweb.mp4" type="video/mp4" />
       </video>
-      <div className=" absolute top-0 left-0 w-full h-full bg-black/60 -z-5 "></div>
-      <Helmet>
-        <title> Login </title>
-      </Helmet>
-      <div className=" container mx-auto relative block h-fit items-center justify-center pt-10  ">
-        <div className=" relative grid h-fit overflow-hidden  grid-cols-12 md:grid-cols-6 bg-black/10  shadow-md shadow-primary-400 w-full md:w-[70%] mx-auto">
-          <div className="col-span-12  md:col-span-6 my-4 px-2 h-[90%]">
-            <div className="lg:px-12 md:px-8 px-4 sm:px-10  flex items-center space-y-8 justify-center flex-col h-full">
-              <div className="flex items-center  justify-center flex-col gap-2">
+      <div className="absolute top-0 left-0 w-full h-full bg-black/60 -z-5"></div>
+
+      <div className="container mx-auto relative flex h-fit items-center justify-center">
+        <div className="relative grid h-fit overflow-hidden mt-10 w-[80%] mx-10 grid-cols-12 md:grid-cols-6 bg-black/10 shadow-md shadow-primary-400">
+          <div className="col-span-12 md:col-span-6 my-4 px-2 h-[90%]">
+            <div className="lg:px-11 md:px-5 px-4 sm:px-10 flex items-center space-y-3 justify-center flex-col h-full">
+              <div className="flex items-center justify-center flex-col gap-2">
                 <img
                   src="/images/OzirixPng2.png"
                   alt="logo"
                   className="w-50 h-45"
                 />
                 <h1 className="text-white text-xl font-semibold text-center">
-                  Log in to OZIRIX{" "}
+                  Welcome Back!{" "}
                   <span>
-                    <i class="fa-regular fa-circle-user"></i>
+                    <i className="fa-regular fa-circle-user"></i>
                   </span>
                 </h1>
               </div>
+
               <form
-                action=""
-                className=" space-y-3 w-full text-white grid grid-cols-12 "
                 onSubmit={formik.handleSubmit}
+                className="space-y-3 w-full gap-x-2 text-white grid grid-cols-12"
               >
-                <div className="email bg-primary-600 px-4 py-3 rounded-lg col-span-12">
+                {/* Role Field */}
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="col-span-12 w-full rounded-lg bg-primary-600 text-white focus:outline-none"
+                >
+                  <option value="ceo">CEO</option>
+                  <option value="employee">Employee</option>
+                  <option value="traffic">Traffic Officer</option>
+                </select>
+
+                {/* Email Field */}
+                <div className="email bg-primary-600 px-3 py-3 rounded-lg col-span-12">
                   <input
-                    autoComplete="off"
                     type="email"
+                    autoComplete="off"
                     placeholder="Enter your email"
-                    className="w-full focus:outline-0 !bg-transparent focus:!bg-transparent focus:border-0 placeholder:text-white"
+                    className="w-full focus:outline-0 bg-transparent placeholder:text-white"
                     name="email"
                     onBlur={formik.handleBlur}
                     value={formik.values.email}
@@ -122,21 +138,18 @@ export default function Login() {
                   />
                 </div>
                 {formik.errors.email && formik.touched.email && (
-                  <p className="text-white font-semibold grid grid-cols-12">
+                  <p className="text-gray-50 col-span-12 font-semibold">
                     *{formik.errors.email}
                   </p>
                 )}
-                {accountExisstError && (
-                  <p className="text-white font-semibold">
-                    *{accountExisstError}
-                  </p>
-                )}
-                <div className="password relative bg-primary-600 px-4 py-3 rounded-lg col-span-12">
+
+                {/* Password Field */}
+                <div className="password relative bg-primary-600 px-3 py-3 rounded-lg col-span-12">
                   <input
-                    autoComplete="off"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="off"
                     placeholder="Enter your password"
-                    className="w-full focus:outline-0 bg-transparent focus:border-0 placeholder:text-white"
+                    className="w-full focus:outline-0 bg-transparent placeholder:text-white"
                     name="password"
                     onBlur={formik.handleBlur}
                     value={formik.values.password}
@@ -146,37 +159,40 @@ export default function Login() {
                     onClick={togglePasswordVisibility}
                     className={
                       showPassword
-                        ? `fa-solid fa-eye absolute  top-[50%]  right-[10px] -translate-y-[50%] cursor-pointer`
-                        : `fa-solid fa-eye-slash absolute  top-[50%]  right-[10px] -translate-y-[50%] cursor-pointer `
+                        ? "fa-solid fa-eye absolute top-[50%] right-[10px] -translate-y-[50%] cursor-pointer"
+                        : "fa-solid fa-eye-slash absolute top-[50%] right-[10px] -translate-y-[50%] cursor-pointer"
                     }
                   ></i>
                 </div>
                 {formik.errors.password && formik.touched.password && (
-                  <p className="text-white font-semibold col-span-12">
+                  <p className="text-gray-50 col-span-12 font-semibold">
                     *{formik.errors.password}
                   </p>
                 )}
+
+                {/* Backend error message */}
+                {loginError && (
+                  <p className="text-red-400 col-span-12 font-semibold text-center">
+                    *{loginError}
+                  </p>
+                )}
+
+                {/* Submit Button */}
                 <button
-                  type=" submit "
-                  className=" bg-primary-400 mb-0 hover:bg-primary-600 hover:transition hover:duration-300 duration-300 py-2 border-[.5px] border-primary-700  w-full rounded-lg col-span-12"
+                  type="submit"
+                  className="col-span-12 bg-primary-300 hover:bg-primary-600 hover:transition hover:duration-300 duration-300 py-2 border-[.5px] border-primary-700 w-full rounded-lg"
                 >
                   Login
                 </button>
-                <Link to={`/forgotPassword`} className="my-3 col-span-12">
-                  <p className=" text-blue-500 font-normal text-center text-sm ">
-                    Forgot password?
-                  </p>
-                </Link>
-                <div className=" text-center col-span-12">
-                  <p className="font-normal text-sm text-white">
-                    Not a member yet?{" "}
+
+                <p className="text-white text-sm col-span-12 text-center font-normal">
+                  Don’t have an account?{" "}
+                  <span className="text-blue-500">
                     <Link to={`/signup`}>
-                      <span className=" text-blue-500 font-normal text-sm">
-                        Create Account <i class="fa-solid fa-angle-right"></i>
-                      </span>
+                      Sign Up <i className="fa-solid fa-angle-right"></i>
                     </Link>
-                  </p>
-                </div>
+                  </span>
+                </p>
               </form>
             </div>
           </div>

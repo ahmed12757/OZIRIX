@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
+  const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const duration = 500;
@@ -18,7 +19,7 @@ export default function Navbar() {
 
   // أقسام حسب الدور
   const sectionsByRole = {
-    CEO: [
+    ceo: [
       { icon: "fa-house", label: "Home", path: "/home" },
       { icon: "fa-clock-rotate-left", label: "History", path: "/history" },
       { icon: "fa-database", label: "Database", path: "/database" },
@@ -41,19 +42,19 @@ export default function Navbar() {
       },
       { icon: "fa-user", label: "Profile", path: "/profile" },
     ],
-    officer: [
+    traffic: [
       { icon: "fa-house", label: "Home", path: "/home" },
       { icon: "fa-user", label: "Profile", path: "/profile" },
     ],
   };
 
   const sections =
-    role === "CEO"
-      ? sectionsByRole.CEO
+    role === "ceo"
+      ? sectionsByRole.ceo
       : role === "employee"
       ? sectionsByRole.employee
-      : role === "officer"
-      ? sectionsByRole.officer
+      : role === "traffic"
+      ? sectionsByRole.traffic
       : [];
 
   return (
@@ -91,14 +92,31 @@ export default function Navbar() {
                 <NavLink
                   key={sec.path}
                   to={sec.path}
-                  className={({ isActive }) =>
-                    `group relative flex flex-col items-center text-lg transition-colors
-                     ${
-                       isActive
-                         ? "text-primary-500"
-                         : "text-white hover:text-primary-500"
-                     }`
-                  }
+                  className={({ isActive }) => {
+                    // تعريف المسارات المرتبطة بكل تبويب
+                    const relatedPaths = {
+                      "/profile": ["/updateProfile", "/profileInfo"],
+                      "/home": ["/details", "/stats", "/analytics"],
+                      "/database": ["/dbInfo", "/dbEdit"],
+                      "/videos": ["/videoDetails", "/uploadVideo"],
+                    };
+
+                    // نشوف المسار الحالي
+                    const currentPath = pathname;
+
+                    // هل المسار الحالي تابع لتبويب معين؟
+                    const isRelated = relatedPaths[sec.path]?.some((p) =>
+                      currentPath.includes(p)
+                    );
+
+                    const isCurrent = isActive || isRelated;
+
+                    return `group relative flex flex-col items-center text-lg transition-colors duration-300 ${
+                      isCurrent
+                        ? "text-primary-500"
+                        : "text-white hover:text-primary-500"
+                    }`;
+                  }}
                 >
                   <i className={`fa-solid ${sec.icon} text-3xl`} />
                   {/* Tooltip يظهر عند الهفر في الشاشات الكبيرة */}
@@ -162,14 +180,31 @@ export default function Navbar() {
                       key={sec.path}
                       to={sec.path}
                       onClick={() => setMenuOpen(false)}
-                      className={({ isActive }) =>
-                        `group relative flex flex-col items-center text-lg transition-colors
-                     ${
-                       isActive
-                         ? "text-primary-500"
-                         : "text-white hover:text-primary-500"
-                     }`
-                      }
+                      className={({ isActive }) => {
+                        // تعريف المسارات المرتبطة بكل تبويب
+                        const relatedPaths = {
+                          "/profile": ["/updateProfile", "/profileInfo"],
+                          "/home": ["/details", "/stats", "/analytics"],
+                          "/database": ["/dbInfo", "/dbEdit"],
+                          "/videos": ["/videoDetails", "/uploadVideo"],
+                        };
+
+                        // نشوف المسار الحالي
+                        const currentPath = pathname;
+
+                        // هل المسار الحالي تابع لتبويب معين؟
+                        const isRelated = relatedPaths[sec.path]?.some((p) =>
+                          currentPath.includes(p)
+                        );
+
+                        const isCurrent = isActive || isRelated;
+
+                        return `group relative flex flex-col items-center text-lg transition-colors duration-300 ${
+                          isCurrent
+                            ? "text-primary-500"
+                            : "text-white hover:text-primary-500"
+                        }`;
+                      }}
                     >
                       <i className={`fa-solid ${sec.icon} text-2xl`} />
                       <span>{sec.label}</span>

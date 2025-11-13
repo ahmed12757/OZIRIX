@@ -35,12 +35,14 @@ const Design = () => {
         // color: {
         //   value: "#232741",
         // },
+
         image: "url('/images/OzirixPng2.png')",
         position: "50% 50%",
         repeat: "no-repeat",
         size: "20%",
         opacity: 1,
       },
+
       backgroundMask: {
         composite: "destination-out",
         cover: {
@@ -51,11 +53,12 @@ const Design = () => {
         },
         enable: false,
       },
+
       clear: true,
       defaultThemes: {},
       delay: 0,
       fullScreen: {
-        enable: true,
+        enable: false,
         zIndex: 0,
       },
       detectRetina: true,
